@@ -1,22 +1,15 @@
-# conda create -n golgi python=3.9
-# pip install numpy anndata scanpy scikit-learn dask[complete] matplotlib pandas tables
-
 import os
-import sys
 import glob
 import time
-import operator
 
 import numpy as np
 import pandas as pd
 import anndata as ad
-import scanpy as sc
 
 import dask
 from dask.delayed import delayed
 import dask.array as da
 import dask.dataframe as dd
-import dask.bag as db
 from dask.distributed import Client
 
 from sklearn.neighbors import KDTree

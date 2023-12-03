@@ -1,5 +1,4 @@
 import os
-import sys
 import glob
 import json
 
@@ -7,8 +6,6 @@ import numpy as np
 import pandas as pd
 import anndata as ad
 import scanpy as sc
-
-from sklearn.preprocessing import PowerTransformer
 
 from util import log, find_paths, preprocess, SPLIT_KEY
 
