@@ -116,7 +116,7 @@ if __name__ == '__main__':
         # df.obs['target'] = pd.Categorical(true_names[feature_channel]) # target names
         df.obs['target'] = pd.Categorical([name for name in true_names for k in range(points[name].shape[0])])
         df.obsm['spatial'] = da.vstack([points[k] for k in true_names]).compute()
-        df.uns['filenames'] = [ch_fp for ch_fp in channel_files if not "all" in ch_fp.lower()]  # store source file names
+        df.uns['filenames'] = [ch_fp for ch_fp in channel_files if "all" not in ch_fp.lower()]  # store source file names
 
         df.write_h5ad(f"features_{name}.h5ad") #, compression="gzip")
 

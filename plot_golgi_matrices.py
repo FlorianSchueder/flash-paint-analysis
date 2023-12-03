@@ -85,7 +85,7 @@ if __name__ == "__main__":
                 conc = c[[x for x in c.keys() if x in channels_directory][0]]
             except IndexError:
                 log(f"Nothing found in {concentration_fp} for {name}", debug=debug)
-                continues
+                continue
             conc_max = max(conc.values())
             for k, v in conc.items():
                 try:

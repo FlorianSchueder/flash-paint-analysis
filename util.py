@@ -14,7 +14,7 @@ def find_paths(dirname, exclude=[], include=[]):
         include = [include]
     paths = []
     for dirpath, _, filenames in os.walk(dirname):
-        for file in filenames:
+        for _ in filenames:
             skip = False
             for ex in exclude:
                 if ex in dirpath:
@@ -30,7 +30,7 @@ def find_paths(dirname, exclude=[], include=[]):
             break
     return list(set(paths))
 
-def preprocess(data, target_sum=10000, downsample=None, downsample_approach="nystroem"):
+def preprocess(data, target_sum=10000, downsample=None, downsample_approach="nystroem", debug=False):
     from sklearn.preprocessing import PowerTransformer
     
     if target_sum is not None:
