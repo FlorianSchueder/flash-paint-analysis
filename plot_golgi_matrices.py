@@ -28,8 +28,11 @@ if __name__ == "__main__":
     if pool_by is not None:
         pools = [[d for d in channels_directories if x in d] for x in pool_by]
     else:
-        pools = channels_directories
-        pool_by = channels_directories
+        pools = [[d] for d in channels_directories]
+        pool_by = ['_'.join(d.split(SPLIT_KEY)[-3:-1]) for d in channels_directories]
+
+    print(pools)
+    print(pool_by)
 
     for pool, data_name in zip(pools, pool_by):
         adatas = {}
