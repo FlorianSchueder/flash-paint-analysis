@@ -30,7 +30,7 @@ def find_paths(dirname, exclude=[], include=[]):
             break
     return list(set(paths))
 
-def preprocess(data, target_sum=10000, downsample=None, downsample_approach="nystroem", debug=False):
+def preprocess(data, target_sum=None, downsample=None, downsample_approach="nystroem", debug=False):
     from sklearn.preprocessing import PowerTransformer
     
     if target_sum is not None:

@@ -108,7 +108,7 @@ if __name__ == "__main__":
             # deal with variability in naming
             adatas[channels_directory].var.rename({"Grasp65": "GRASP65", "ManII-GFP": "ManII"}, inplace=True)
             
-            adatas[channels_directory].X = preprocess(adatas[channels_directory].X, target_sum=None)
+            adatas[channels_directory].X = preprocess(adatas[channels_directory].X)
             # adatas[channels_directory].X = PowerTransformer().fit_transform(adatas[channels_directory].X)
             # adatas[channels_directory].X = (adatas[channels_directory].X - adatas[channels_directory].X.mean(0)[None,:])/adatas[channels_directory].X.std(0)[None,:]
             

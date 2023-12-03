@@ -16,7 +16,7 @@ n_neighbors = 50
 min_dist = 0.1
 pool_by = None
 pool_by = ["Normal", "BrefeldinA", "Ilimaquinone", "Nocodazole"]
-n_subsamp = 1000000
+n_subsamp = 2000000
 min_locs = 30
 stratified = True
 
@@ -55,18 +55,18 @@ if __name__ == "__main__":
 
                 # Subsample
                 if stratified:
-                    split_frac = (n_subsamp / len(pool)) / adatas[channels_directory].X.shape[0]
-                    inds = adatas[channels_directory].obs.groupby('target').apply(lambda x: x.sample(frac=split_frac)).droplevel(0).index
+                    split_n = n_subsamp // (len(pool)*df.X.shape[1]) #/ adatas[channels_directory].X.shape[0]
+                    inds = adatas[channels_directory].obs.groupby('target').apply(lambda x: x.sample(min(split_n, len(x)))).droplevel(0).index
                     adatas[channels_directory] = adatas[channels_directory][inds]
                 else:
-                    sc.pp.subsample(adatas[channels_directory], n_obs=1000000, copy=False)
+                    sc.pp.subsample(adatas[channels_directory], n_obs=n_subsamp, copy=False)
 
                 log(f"After subsample: {adatas[channels_directory].X.shape[0]}", debug=debug)
 
                 # deal with variability in naming
-                adatas[channels_directory].var.rename({"Grasp65": "GRASP65", "ManII-GFP": "ManII"}, inplace=True)
+                adatas[channels_directory].var.replace({"Grasp65": "GRASP65", "ManII-GFP": "ManII"}, inplace=True)
 
-                adatas[channels_directory].X = preprocess(adatas[channels_directory].X, downsample=downsample)
+                adatas[channels_directory].X = preprocess(adatas[channels_directory].X, target_sum=10000, downsample=downsample)
                     
             else:
                 adatas[channels_directory] = df
@@ -87,10 +87,10 @@ if __name__ == "__main__":
             embedding = data.obsm["X_umap"]
 
         try:
-            sc.pl.umap(data, title=name, color="target", show=False, size=max(120000/embedding.shape[0], 0.01), save=f"features_{data_name}_umap.pdf")
+            sc.pl.umap(data, title=data_name, color="target", show=False, size=max(120000/embedding.shape[0], 0.01), save=f"features_{data_name}_umap.pdf")
         except KeyError as e:
             log(f"Could not plot: {e}", debug=debug)
 
         if write_again:
-            data.write(f"features_{name}_umap.h5ad", compression="gzip")
+            data.write(f"features_{data_name}_umap.h5ad", compression="gzip")
     
