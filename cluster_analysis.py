@@ -1,9 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from sklearn.cluster import HDBSCAN
 
-def cluster_umap(df, min_cluster_size=20, copy=True):
+def cluster_umap(df, min_cluster_size=20, copy=True, gpu=False):
+    if gpu:
+        from cuml.cluster import HDBSCAN
+    else:
+        from sklearn.cluster import HDBSCAN
     hdb = HDBSCAN(min_cluster_size=min_cluster_size, n_jobs=-1)
     hdb.fit(df.obsm["X_umap"])
 
@@ -15,7 +18,7 @@ def cluster_umap(df, min_cluster_size=20, copy=True):
         df.obs["labels"] = hdb.labels_
         return df
 
-def make_knee_plot(df, sizes = [5, 10, 20, 40, 80, 160, 320], return_clustering=False):
+def make_knee_plot(df, sizes = [5, 10, 20, 40, 80, 160, 320], save=None, return_clustering=False):
     n_clusters = []
     if return_clustering:
         dfs = []
@@ -31,7 +34,8 @@ def make_knee_plot(df, sizes = [5, 10, 20, 40, 80, 160, 320], return_clustering=
     plt.plot(sizes, n_clusters)
     plt.xlabel('Minimum cluster size')
     plt.ylabel('Number of clusters')
-    plt.savefig("knee_plot.png")
+    if save is not None and isinstance(save, str):
+        plt.savefig(save)
 
     if return_clustering:
         return dfs
@@ -80,9 +84,18 @@ def get_ranked_targets(df, n=5, min_count=30, min_targets=2, include=None, exclu
     return target_clusters
 
 if __name__ == "__main__":
+    # import os
+    import glob
+
     import anndata as ad
 
-    fn = "features_BrefeldinA_umap1.h5ad"
-    df = ad.read(fn)
+    # fn = "features_BrefeldinA_umap.h5ad"
+    # for fn in glob.glob("*.h5ad"):
+    #     df = ad.read(fn)
 
-    make_knee_plot(df, sizes = [20, 40, 80, 160, 320, 640, 1280] )
+    #     make_knee_plot(df, sizes = [20, 40, 80, 160, 320, 640], save=f"{os.path.basename(fn).split('.h5ad')[0]}.png")
+
+    for fn in glob.glob("*.h5ad"):
+        df = ad.read(fn)
+        cluster_umap(df, min_cluster_size=125, copy=False)
+        df.write(fn)

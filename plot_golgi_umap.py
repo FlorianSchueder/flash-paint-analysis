@@ -24,8 +24,6 @@ min_locs = 30
 stratified = True
 plot_targets = ["GM130","GRASP65","GRASP55","ManII","p230","Golgin97","Giantin","TGN46","COPI","ERGIC53","COPII","Tango1","Lamin"]
 
-plot_targets = ["GM130","GRASP65","GRASP55","ManII","p230","Golgin97","Giantin","TGN46","COPI","ERGIC53","COPII","Tango1","Lamin"]
-
 def plot_umap(df, color=None, save=None, cmap=None):
     if color is None:
         color = df.obs['target'].unique()
@@ -44,7 +42,7 @@ def plot_umap(df, color=None, save=None, cmap=None):
     ax.set_prop_cycle(cmap)
     
     size = max(120000/df.obsm['X_umap'].shape[0], 0.01)
-    for i, target in enumerate(color):
+    for target in color:
         x, y = df.obsm['X_umap'][df.obs['target'] == target].T
         ax.scatter(x, y, s=size, label=target)
 
