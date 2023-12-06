@@ -8,7 +8,6 @@ import umap
 from util import log, find_paths, preprocess, SPLIT_KEY
 
 channels_directory = r"D:\FLASH-PAINT\zzzz.for_Zach\GolgiPlex\z.Drugs"
-# channels_directory = r"D:\FLASH-PAINT\zzzz.for_Zach\GolgiPlex\z.Drugs\Normal\231028_Normal"
 debug = True
 overwrite =  True
 downsample = None
@@ -16,7 +15,7 @@ n_neighbors = 50
 min_dist = 0.1
 pool_by = None
 pool_by = ["Normal", "BrefeldinA", "Ilimaquinone", "Nocodazole"]
-n_subsamp = 2000000
+n_subsamp = 1000000
 min_locs = 30
 stratified = True
 
@@ -30,6 +29,7 @@ if __name__ == "__main__":
         pool_by = ['_'.join(d.split(SPLIT_KEY)[-2:]) for d in channels_directories]
 
     for pool, data_name in zip(pools, pool_by):
+        log(pool, debug=debug)
         adatas = {}
         for channels_directory in pool:
             name = '_'.join(channels_directory.split(SPLIT_KEY)[-2:])
@@ -42,9 +42,6 @@ if __name__ == "__main__":
             # Read in data
             df = ad.read(f"features_{name}.h5ad")
             log(f"Total points: {df.X.shape[0]}", debug=debug)
-            
-            # cleanup hdf5 name (bug)
-            # df.obs['target'] = df.obs['target'].cat.rename_categories(lambda x: x.split('.hdf5')[0])
             
             if overwrite or df.obsm.get("X_umap") is None:
                 # Drop regions with particularly low counts
@@ -61,10 +58,10 @@ if __name__ == "__main__":
                 else:
                     sc.pp.subsample(adatas[channels_directory], n_obs=n_subsamp, copy=False)
 
-                log(f"After subsample: {adatas[channels_directory].X.shape[0]}", debug=debug)
+                # deal with variability in naming 
+                adatas[channels_directory].obs['target'].replace({"Grasp65": "GRASP65", "Grasp55": "GRASP55", "ManII-GFP": "ManII"}, inplace=True)
 
-                # deal with variability in naming
-                adatas[channels_directory].var.replace({"Grasp65": "GRASP65", "ManII-GFP": "ManII"}, inplace=True)
+                log(f"After subsample: {adatas[channels_directory].X.shape[0]}", debug=debug)
 
                 adatas[channels_directory].X = preprocess(adatas[channels_directory].X, target_sum=10000, downsample=downsample)
                     
@@ -72,6 +69,8 @@ if __name__ == "__main__":
                 adatas[channels_directory] = df
 
         data = ad.concat(adatas, join="inner")
+
+        print([x for x in data.obs['target'].unique()])
 
         write_again = False
         if overwrite or data.obsm.get("X_umap") is None:

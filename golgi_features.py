@@ -26,8 +26,8 @@ dask.config.set({"distributed.comm.timeouts.tcp": "60s"})  # default, 30s
 
 # channels_directory = r"H:\09.Adapter_PAINT\zzzz.for_Zach\GolgiPlex\z.Drugs"
 # channels_directory = "/Users/zachmarin/Documents/Projects/FlashPAINT/GolgiPlex/Normal_Golgi"
-# channels_directory = r"D:\FLASH-PAINT\zzzz.for_Zach\GolgiPlex\z.Drugs"
-channels_directory = r"D:\FLASH-PAINT\zzzz.for_Zach\GolgiPlex\z.Drugs\Normal\231028_Normal"
+channels_directory = r"D:\FLASH-PAINT\zzzz.for_Zach\GolgiPlex\z.Drugs"
+# channels_directory = r"D:\FLASH-PAINT\zzzz.for_Zach\GolgiPlex\z.Drugs\Normal\231028_Normal"
 
 clipping = None  # (35869, 10472, -379, 44766, 19660, 112)  # xl, yl, zl, xu, yu, zu
 max_rad = 100  # maximum radius from each point
@@ -42,7 +42,7 @@ pixels = np.array([pixel_size, pixel_size, 1])
 pixels = da.from_array(pixels)
 
 channels_directories = find_paths(channels_directory, exclude="ROI")
-print(channels_directories)
+# print(channels_directories)
 
 # def query_ball_point(points, tree, rad):
 #     _, dist = tree.query_radius(points, rad, count_only=False, return_distance=True)
@@ -66,6 +66,7 @@ if __name__ == '__main__':
 
         # Get the list of channel files in this directory
         channel_files = glob.glob(f"{channels_directory}/*hdf5")
+        print(channel_files)
         true_names = []
         points = {}
         n_points = {}
