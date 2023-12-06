@@ -5,6 +5,10 @@ import scanpy as sc
 
 import umap
 
+import matplotlib.pyplot as plt
+from matplotlib import colormaps
+from cycler import cycler
+
 from util import log, find_paths, preprocess, SPLIT_KEY
 
 channels_directory = r"D:\FLASH-PAINT\zzzz.for_Zach\GolgiPlex\z.Drugs"
@@ -18,6 +22,34 @@ pool_by = ["Normal", "BrefeldinA", "Ilimaquinone", "Nocodazole"]
 n_subsamp = 1000000
 min_locs = 30
 stratified = True
+plot_targets = ["GM130","GRASP65","GRASP55","ManII","p230","Golgin97","Giantin","TGN46","COPI","ERGIC53","COPII","Tango1","Lamin"]
+
+def plot_umap(df, color=None, save=None, cmap=None):
+    if color is None:
+        color = df.obs['target'].unique()
+    elif isinstance(color, str):
+        color = df.obs[color]
+    
+    if cmap is None:
+        cmap = cycler(color=['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'])
+    else: 
+        cmap = cycler(color=colormaps[cmap].resampled(len(color)).colors)
+    fig, ax = plt.subplots()
+    ax.set_prop_cycle(cmap)
+    size = max(120000/df.obsm['X_umap'].shape[0], 0.01)
+    for i, target in enumerate(color):
+        x, y = df.obsm['X_umap'][df.obs['target'] == target].T
+        ax.scatter(x, y, s=size, label=target)
+
+    ax.axis('off')
+    ax.legend(loc='center right', markerscale=20, frameon=False, bbox_to_anchor=(1.3,0.5))
+    fig.tight_layout()
+    
+    if isinstance(save, str):
+        plt.savefig(save, dpi=300)
+    elif save is not None:
+        raise ValueError(f"Unknown what to do. Expected file path, but recieved {save}.")
+        
 
 if __name__ == "__main__":
     channels_directories = find_paths(channels_directory, exclude="ROI")
