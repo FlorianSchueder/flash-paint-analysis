@@ -7,7 +7,6 @@ import umap
 
 import matplotlib.pyplot as plt
 from matplotlib import colormaps
-from cycler import cycler
 
 from util import log, find_paths, preprocess, SPLIT_KEY
 
@@ -18,43 +17,60 @@ downsample = None
 n_neighbors = 50
 min_dist = 0.1
 pool_by = None
-pool_by = ["Normal", "BrefeldinA", "Ilimaquinone", "Nocodazole"]
+# pool_by = ["Normal", "BrefeldinA", "Ilimaquinone", "Nocodazole"]
 n_subsamp = 1000000
 min_locs = 30
-stratified = True
+stratified = False
 plot_targets = ["GM130","GRASP65","GRASP55","ManII","p230","Golgin97","Giantin","TGN46","COPI","ERGIC53","COPII","Tango1","Lamin"]
 
-def plot_umap(df, color=None, save=None, cmap=None):
+def plot_umap(df, color=None, save=None, cmap=None, title=None, size=None , ax=None):
     if color is None:
         color = df.obs['target'].unique()
     elif isinstance(color, str):
         color = df.obs[color]
     
     if cmap is None:
-        cmap = cycler(color=['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'])
+        try:
+            from scanpy.plotting.palettes import vega_20
+            cmap = vega_20
+        except ImportError:
+            cmap = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
     else:
         try:
-            cmap = cycler(color=colormaps[cmap].resampled(len(color)).colors)
+            cmap = colormaps[cmap].resampled(len(color)).colors
         except AttributeError:
-            cmap = cycler(color=[colormaps[cmap].resampled(len(color))(x) for x in range(len(color))])
+            cmap = [colormaps[cmap].resampled(len(color))(x) for x in range(len(color))]
     
-    fig, ax = plt.subplots()
-    ax.set_prop_cycle(cmap)
+    was_none = False
+    if ax is None:
+        was_none = True
+        fig, ax = plt.subplots()
+
+    cmap = cmap[:len(color)][::-1]
     
-    size = max(120000/df.obsm['X_umap'].shape[0], 0.01)
-    for target in color:
+    if size is None:
+        size = max(120000/df.shape[0], 0.001)
+    for i, target in enumerate(color):
         x, y = df.obsm['X_umap'][df.obs['target'] == target].T
-        ax.scatter(x, y, s=size, label=target)
+        ax.scatter(x, y, marker='.', c=cmap[i], s=size, rasterized=False, plotnonfinite=True)
 
     ax.axis('off')
-    ax.legend(loc='center right', markerscale=20, frameon=False, bbox_to_anchor=(1.3,0.5))
-    fig.tight_layout()
+    if title is not None:
+        ax.set_title(title)
+
+    for i, target in enumerate(color):
+        ax.scatter([], [], c=cmap[i] ,label=target)
+    ax.legend(loc='center left', frameon=False, bbox_to_anchor=(1, 0.5), fontsize=None)
+
+    ax.autoscale_view()
+    
+    if was_none:
+        fig.tight_layout()
     
     if isinstance(save, str):
         plt.savefig(save, dpi=300)
     elif save is not None:
         raise ValueError(f"Unknown what to do. Expected file path, but recieved {save}.")
-
 
 if __name__ == "__main__":
     channels_directories = find_paths(channels_directory, exclude="ROI")
@@ -124,6 +140,7 @@ if __name__ == "__main__":
 
         try:
             sc.pl.umap(data, title=data_name, color="target", show=False, size=max(120000/embedding.shape[0], 0.01), save=f"features_{data_name}_umap.pdf")
+            plot_umap(data, color=plot_targets, save=f"features_{data_name}_umap.pdf", title=data_name)
         except KeyError as e:
             log(f"Could not plot: {e}", debug=debug)
 
