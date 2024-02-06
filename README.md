@@ -21,3 +21,13 @@ pip install numpy anndata scanpy umap-learn scikit-learn dask[complete] matplotl
 **cluster_analysis.py** - Tools for clustering and investigating UMAP embedding.
 
 ***util.py*** - Common functions used by all scripts.
+
+***231211_DistanceHeatmapBrefeldinA.ipynb*** - Computes a distance heatmap for the Brefeldin A condtion.
+
+***231211_DistanceHeatmapControl.ipynb*** - Computes a distance heatmap for the Ilimaquinone condtion.
+
+***231211_DistanceHeatmapIlimaquinone.ipynb*** - Computes a distance heatmap for the control sample.
+
+***231211_DistanceHeatmapNocodazole.ipynb*** - Computes a distance heatmap for the Nocodazole condtion.
+
+***240118_DrugDataAbundance2.ipynb*** - Computs abundance box plots.
